@@ -17,7 +17,16 @@ void FirstDisplay(int *choice) {
     scanf("%d", choice);
 }
 
-//----------------------------- LOGIN & SIGNUP ------------------------------//
+void MainMenu(char *loggedInUsername, int *choice) {
+    printf("Welcome %s!\n", loggedInUsername);
+    printf("1. Start Server Chat\n");
+    printf("2. Start Client Chat\n");
+    printf("0. Logout\n");
+    printf("Enter choice: ");
+    scanf("%d", choice);
+}
+
+//----------------------------- Load File ------------------------------//
 
 int load_accounts_from_file(const char *filename, ACCOUNT accounts[]) {
     FILE *file = fopen(filename, "r");
@@ -51,6 +60,8 @@ int load_accounts_from_file(const char *filename, ACCOUNT accounts[]) {
     return count;
 }
 
+//----------------------------- LOGIN & SIGNUP ------------------------------//
+
 bool LogIn(ACCOUNT account[], int accounts_count, char **loggedInUsername) {
     if (accounts_count == 0) {
         ClearScreen();
@@ -67,8 +78,6 @@ bool LogIn(ACCOUNT account[], int accounts_count, char **loggedInUsername) {
             ClearScreen();
             char *password = get_input("Password: ", MAX_PASS_LENGTH);
             if (strcmp(password, account[i].Password) == 0) {
-                ClearScreen();
-                printf("Welcome back, %s!\n", account[i].Username);
                 *loggedInUsername = username;
                 free(password);
                 PauseScreen(1000);

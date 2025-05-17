@@ -1,9 +1,10 @@
+#include "server.h"
+#include "utils.h"
+
 #include <stdio.h>
 #include <winsock2.h>
 #include <string.h>
 
-#include "server.h"
-#include "utils.h"
 
 void start_server_chat(const char *username) {
     WSADATA wsa;
@@ -55,8 +56,23 @@ void start_server_chat(const char *username) {
         return;
     }
 
+    // Send server username
+    send(client_socket, username, (int)strlen(username), 0);
+
+    // Receive client username
+    char client_username[BUF_SIZE];
+    int name_len = recv(client_socket, client_username, BUF_SIZE - 1, 0);
+    if (name_len <= 0) {
+        printf("Failed to receive username from client.\n");
+        closesocket(client_socket);
+        closesocket(server_socket);
+        WSACleanup();
+        return;
+    }
+    client_username[name_len] = '\0';
+
     ClearScreen();
-    printf("Client connected! Start Chatting\n");
+    printf("%s connected! Start Chatting\n", client_username);
     PauseScreen(1000);
 
     while(1) {
@@ -67,7 +83,7 @@ void start_server_chat(const char *username) {
         } 
 
         buffer[recv_len] = '\0';
-        printf("Client: %s\n", buffer);
+        printf("%s: %s\n", client_username, buffer);
 
         printf("%s: ", username);
         fgets(buffer, BUF_SIZE, stdin);

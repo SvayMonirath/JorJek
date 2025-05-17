@@ -42,10 +42,23 @@ void start_client_chat(const char *username) {
         return;
     }
 
-    ClearScreen();
-    printf("Connected to chat!\n");
-    PauseScreen(1000);
+    // send client username
+    send(sock, username, (int)strlen(username), 0);
 
+    // receive server username
+    char server_username[BUF_SIZE];
+    int name_len = recv(sock, server_username, BUF_SIZE - 1, 0);
+    if (name_len <= 0) {
+        printf("Failed to receive server username.\n");
+        closesocket(sock);
+        WSACleanup();
+        return;
+    }
+    server_username[name_len] = '\0';
+    ClearScreen();
+    printf("Connected to %s! Start chatting.\n", server_username);
+    PauseScreen(1000);
+    
     while(1) {
         printf("%s: ", username);
         fgets(buffer, BUF_SIZE, stdin);
@@ -65,7 +78,7 @@ void start_client_chat(const char *username) {
         }
 
         buffer[recv_len] = '\0';
-        printf("Server: %s\n", buffer);
+        printf("%s: %s\n", server_username, buffer);
     }
 
     closesocket(sock);

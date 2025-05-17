@@ -1,11 +1,12 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <windows.h>
-
 #include "utils.h"
 #include "LogSign.h"
 #include "server.h" 
 #include "client.h" 
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <windows.h>
+
 
 
 int main(void) {
@@ -29,12 +30,7 @@ int main(void) {
                     int chat_choice = 0;
                     do {
                         ClearScreen();
-                        printf("Welcome %s! Choose mode:\n", loggedInUsername);
-                        printf("1. Start Server Chat\n");
-                        printf("2. Start Client Chat\n");
-                        printf("0. Logout\n");
-                        printf("Enter choice: ");
-                        scanf("%d", &chat_choice);
+                        MainMenu(loggedInUsername, &chat_choice);
                         clear_input_buffer();
 
                         switch (chat_choice) {
@@ -44,7 +40,7 @@ int main(void) {
                             case 2:
                                 start_client_chat(loggedInUsername);
                                 break;
-                            case 0:
+                            case 3:
                                 printf("Logging out...\n");
                                 PauseScreen(1000);
                                 break;
@@ -52,7 +48,7 @@ int main(void) {
                                 printf("Invalid choice, try again.\n");
                                 PauseScreen(1000);
                         }
-                    } while (chat_choice != 0);
+                    } while (chat_choice != 3);
                 }
                 break;
             case SIGNUP:
@@ -73,3 +69,4 @@ int main(void) {
 
     return 0;
 }
+

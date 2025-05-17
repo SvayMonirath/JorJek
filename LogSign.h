@@ -28,5 +28,6 @@ int load_accounts_from_file(const char *filename, ACCOUNT accounts[]);
 bool LogIn(ACCOUNT account[], int accounts_count, char **loggedInUsername);
 void SignUp(ACCOUNT account[], int *accounts_count);
 void FirstDisplay(int *choice);
+void MainMenu(char *loggedInUsername, int *choice);
 
 #endif
