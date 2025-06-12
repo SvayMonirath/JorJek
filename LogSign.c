@@ -21,7 +21,7 @@ void MainMenu(char *loggedInUsername, int *choice) {
     printf("Welcome %s!\n", loggedInUsername);
     printf("1. Start Server Chat\n");
     printf("2. Start Client Chat\n");
-    printf("0. Logout\n");
+    printf("3. Logout\n");
     printf("Enter choice: ");
     scanf("%d", choice);
 }
