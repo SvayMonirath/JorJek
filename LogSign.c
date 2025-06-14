@@ -109,7 +109,7 @@ void FirstDisplay(int *choice) {
 //----------------------------- MAIN MENU ------------------------------//
 
 void MainMenu(const char *loggedInUsername, ROLE role, int *choice) {
-    printf("Welcome %s!\n", loggedInUsername);
+    printf("Welcome %s!\n\n", loggedInUsername);
     if (role == ROLE_ADMIN) {
         printf("1. Admin Panel\n");
         printf("2. Start Server Chat\n");

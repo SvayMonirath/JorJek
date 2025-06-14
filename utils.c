@@ -62,20 +62,6 @@ char* get_input(const char *prompt, int size) {
     return input;
 }
 
-int Valid_input_int(const char *prompt) {
-    char input[20];
-    int number;
-    while (1) {
-        printf("%s", prompt);
-        fgets(input, 20, stdin);
-        if (sscanf(input, "%d", &number) == 1) {
-            return number;
-        } else {
-            printf("Invalid input: Only number\n");
-        }
-    }
-}
-
 
 //----------------------------- SYSTEM FUNCTIONS ------------------------------//
 
@@ -94,45 +80,4 @@ void PauseScreen(int time) {
 void clear_input_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
-}
-
-//----------------------------- INTRODUCTION ------------------------------//
-
-void cool_intro() {
-
-    ClearScreen();
-
-    const char *title =
-        "+--------------------------------------------+\n"
-        "|                                            |\n"
-        "|          Welcome to JORJEK Chat!           |\n"
-        "|                                            |\n"
-        "+--------------------------------------------+\n";
-
-    for (int i = 0; title[i] != '\0'; i++) {
-        putchar(title[i]);
-        
-        Sleep(5);
-    }
-
-    const char *safety = "\n[+] Safe. Private. Real-time.\n";
-    for (int i = 0; safety[i] != '\0'; i++) {
-        putchar(safety[i]);
-        
-        Sleep(30);  // a little slower so it’s visible
-    }
-
-    printf("--------------------------------------------------\n\n");
-    Sleep(500);
-    printf("Launching chat app");
-    
-
-    for (int i = 0; i < 3; i++) {
-        Sleep(700);
-        printf(".");
-        
-    }
-    printf("\n\n");
-    PauseScreen(1000);
-    ClearScreen();
 }

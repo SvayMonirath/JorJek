@@ -14,9 +14,5 @@ void ClearScreen();
 void PauseScreen(int time);
 void clear_input_buffer();
 char* get_input(const char *prompt, int size);
-int Valid_input_int(const char *prompt);
-
-// Intro
-void cool_intro();
 
 #endif

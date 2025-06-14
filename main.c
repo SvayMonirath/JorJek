@@ -2,6 +2,7 @@
 #include "LogSign.h"
 #include "server.h" 
 #include "client.h" 
+#include "admin.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -44,8 +45,55 @@ int main(void) {
 
                         if (user_role == ROLE_ADMIN) {
                             switch (chat_choice) {
-                                case 1:
-                                    // admin panel function here
+                                case 1: {
+                                    int AdminChoice = 0;
+                                    do {
+                                        ClearScreen();
+                                        AdminPanel(username_buffer, &AdminChoice);
+                                        clear_input_buffer();
+                                        switch (AdminChoice) {
+                                            case 1:
+                                                while(1) {
+                                                    ViewUser(account, Acc_count);
+                                                    char *input = get_input("Write (exit) to leave: ", 10);
+                                                    if(strcmp(input, "exit") == 0) {
+                                                        break;
+                                                    }
+                                                }
+                                                break;
+                                                
+                                            case 2:
+                                                //delete user
+                                                if(DeleteUser(account, &Acc_count)) {
+                                                    if(save_accounts_to_file(FILE_NAME, account, Acc_count)) printf("\nAccounted Deleted Successfully\n");
+                                                    PauseScreen(2000); 
+                                                }
+                                                break;
+
+                                            // case 3:
+                                            //     //reset user password
+                                            //     break;
+
+                                            // case 4:
+                                            //     //view all chat 
+                                            //     break;
+                                                
+                                            case 5:
+                                                ClearScreen();
+                                                printf("Exiting Back to Main Menu...\n");
+                                                PauseScreen(1000);
+                                                break;  
+
+                                            default:
+                                                printf("Invalid choice, try again.\n");
+                                                PauseScreen(1000);
+                                                break;
+                                        }
+
+
+
+                                    } while(AdminChoice != 5);
+                                }   
                                     break;
                                 case 2:
                                     start_server_chat(username_buffer);
