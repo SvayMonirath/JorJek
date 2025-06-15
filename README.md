@@ -1,42 +1,58 @@
-# Jorjek
+#Jorjek
+Jorjek is a real-time, terminal-based chat application written in C, built specifically for Windows using socket programming. It features user authentication, an admin system, and real-time messaging. Admins can manage user accounts directly from the terminal.
 
-Jorjek is a real-time terminal-based chat application written in C using socket programming, designed specifically for Windows environments. It features a user login and signup system to manage secure sessions, enabling two users to communicate instantly via a command-line interface.
+##Background
+I created Jorjek to strengthen my understanding of networking, client-server architecture, and user authentication.
+Throughout the project, I focused on building real-time communication from scratch while gradually adding more features like role management and system controls.
+This project serves as a solid base for future improvements like multithreading and secure data handling.
 
----
+##Features
+ User Authentication: Login and signup system to manage user sessions securely.
 
-## Background
+ Admin Panel:
+Admins can:
 
-I built Jorjek to deepen my understanding of networking fundamentals and client-server architecture. This project helped me implement real-time communication and basic user authentication from scratch, laying the groundwork for more advanced features such as multithreading and secure encryption.
+View all registered users
 
----
+Delete users
 
-## Features
+Reset user passwords
 
-- Real-time messaging between two clients using TCP sockets  
-- User authentication with login and signup system  
-- Terminal-based interface optimized for Windows  
-- Clear foundation for adding multithreading and concurrency support  
+View chat logs (planned feature or can be added later)
 
----
+ Real-Time Chat: Terminal-based messaging between two clients using TCP sockets.
 
-## Known Limitations
+ Role-Based Menus: Different options for Admins and regular users.
 
-- Currently supports communication between up to two users.  
-- Lack of multithreading means it cannot handle multiple clients concurrently.  
-- This limited scope helped focus on core networking and authentication concepts before scaling.  
+ Windows Optimized: Built and tested for Windows terminals.
 
----
+##Known Limitations
+Supports communication between up to two users at a time.
 
-## Requirements
+No multithreading yet — cannot handle multiple chats concurrently.
 
-- Windows 10 or later  
-- GCC compiler (MinGW or Cygwin recommended)  
+Basic file-based account storage (no database yet).
 
----
+Admin chat log viewing is a placeholder (or planned if not yet implemented).
 
-## Installation & Usage
+##Requirements
+Windows 10 or later
 
-1. Clone the repository:  
-   ```bash
-   git clone https://github.com/yourusername/jorjek.git
-   cd jorjek
+GCC compiler (MinGW or Cygwin recommended)
+
+##Installation & Usage
+Clone the repository:
+
+
+git clone https://github.com/yourusername/jorjek.git
+cd jorjek
+Compile the program:
+
+
+gcc main.c LogSign.c utils.c server.c client.c admin.c -o jorjek -lws2_32
+Run the program:
+
+
+./jorjek
+
+The project is a learning-focused, single-threaded design with plenty of room for future scaling.
