@@ -41,12 +41,72 @@ int save_accounts_to_file(const char *filename, ACCOUNT account[], int count) {
 void ViewUser(ACCOUNT account[], int count) {
     ClearScreen();
 
+    // Step 1: Automatically show all non-admin usernames first
+    printf("============== USER LIST ==============\n\n");
     printf("ID:\tUsername\n\n");
-    for(int i = 1; i < count; i++) {
-        printf("%d:\t%s\n", i, account[i].Username);
+
+    int display_id = 1; // Display counter
+    for (int i = 1; i < count; i++) {
+        if (account[i].role != ROLE_ADMIN) { // Skip admins
+            printf("%d:\t%s\n", display_id, account[i].Username);
+            display_id++;
+        }
     }
+
+    if (display_id == 1) { // No users to display
+        printf("No regular users found.\n");
+    }
+
     printf("\n------------------------------------\n");
+
+    // Step 2: Ask if they want to view passwords
+    char *input = get_input("Do you want to view passwords? (yes/no): ", 10);
+
+    if (_stricmp(input, "yes") == 0) {
+        int chance = 3;
+
+        while (chance > 0) {
+            int code;
+            printf("\nEnter secret code: ");
+            scanf("%d", &code);
+            clear_input_buffer();
+
+            if (code == SECRET_CODE) {
+                ClearScreen();
+                printf("============== USER LIST WITH PASSWORDS ==============\n\n");
+                printf("ID:\tUsername\tPassword\n\n");
+
+                int pass_display_id = 1;
+                for (int i = 1; i < count; i++) {
+                    if (account[i].role != ROLE_ADMIN) { // Skip admins
+                        printf("%d:\t%s\t\t%s\n", pass_display_id, account[i].Username, account[i].Password);
+                        pass_display_id++;
+                    }
+                }
+
+                if (pass_display_id == 1) { // No users to display
+                    printf("No regular users found.\n");
+                }
+
+                printf("\n------------------------------------\n");
+                break;
+            } else {
+                chance--;
+                if (chance > 0) {
+                    printf("Incorrect code. %d %s left.\n", chance, (chance > 1) ? "tries" : "try");
+                } else {
+                    printf("No tries left. Access to passwords denied.\n");
+                }
+            }
+        }
+    } else {
+        printf("Password view skipped.\n");
+    }
+
+    free(input);
 }
+
+
 
 //----------------------------- DELETE USER ------------------------------//
 bool DeleteUser(ACCOUNT account[], int *count) {
