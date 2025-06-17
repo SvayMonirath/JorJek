@@ -8,13 +8,6 @@
 #include <stdbool.h>
 #include <windows.h>
 
-#define CHAT_SERVER 1
-#define CHAT_CLIENT 2
-#define LOGOUT_ADMIN 4
-#define LOGOUT_USER 3
-
-void handle_chat_menu(const char *username, int chat_choice, ROLE role);
-
 int main(void) {
     ACCOUNT account[MAX_NUM_ACC];
     int Acc_count = load_accounts_from_file(FILE_NAME, account);
@@ -204,27 +197,3 @@ int main(void) {
 
     return 0;
 }
-
-void handle_chat_menu(const char *username, int chat_choice, ROLE role) {
-    switch (chat_choice) {
-        case CHAT_SERVER:
-            start_server_chat(username);
-            break;
-
-        case CHAT_CLIENT:
-            start_client_chat(username);
-            break;
-
-        case LOGOUT_ADMIN:
-        case LOGOUT_USER:
-            printf("Logging out...\n");
-            PauseScreen(1000);
-            break;
-
-        default:
-            printf("Invalid choice, try again.\n");
-            PauseScreen(1000);
-            break;
-    }
-}
-

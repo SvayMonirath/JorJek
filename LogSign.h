@@ -10,6 +10,11 @@
 #define FILE_NAME "user.csv"
 #define CHAT_FILE_NAME "chat.csv"
 
+#define CHAT_SERVER 1
+#define CHAT_CLIENT 2
+#define LOGOUT_ADMIN 4
+#define LOGOUT_USER 3
+
 //----------------------------- ENUM ------------------------------//
 typedef enum {
     ROLE_USER = 0,
@@ -29,13 +34,10 @@ typedef struct {
 
 //----------------------------- FUNCTION PROTOTYPES ------------------------------//
 int load_accounts_from_file(const char *filename, ACCOUNT accounts[]);
-
 bool VerifyLogin(const ACCOUNT accounts[], int accounts_count, const char *username, const char *password, ROLE *out_role);
-
 bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const char *password);
-
 void FirstDisplay(int *choice);
-
 void MainMenu(const char *loggedInUsername, ROLE role, int *choice);
+void handle_chat_menu(const char *username, int chat_choice, ROLE role);
 
 #endif

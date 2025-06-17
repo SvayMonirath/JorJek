@@ -1,5 +1,7 @@
 #include "LogSign.h"
 #include "utils.h"
+#include "server.h"
+#include "client.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -134,4 +136,28 @@ void MainMenu(const char *loggedInUsername, ROLE role, int *choice) {
     printf("\n------------------------------------\n");
     printf("Enter an option (number): ");
     scanf("%d", choice);
+}
+
+//----------------------------- HANDLE MENU ------------------------------//
+void handle_chat_menu(const char *username, int chat_choice, ROLE role) {
+    switch (chat_choice) {
+        case CHAT_SERVER:
+            start_server_chat(username);
+            break;
+
+        case CHAT_CLIENT:
+            start_client_chat(username);
+            break;
+
+        case LOGOUT_ADMIN:
+        case LOGOUT_USER:
+            printf("Logging out...\n");
+            PauseScreen(1000);
+            break;
+
+        default:
+            printf("Invalid choice, try again.\n");
+            PauseScreen(1000);
+            break;
+    }
 }
