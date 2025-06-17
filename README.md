@@ -1,42 +1,46 @@
 # Jorjek
 
-Jorjek is a real-time terminal-based chat application written in C using socket programming, designed specifically for Windows environments. It features a user login and signup system to manage secure sessions, enabling two users to communicate instantly via a command-line interface.
-
----
+Jorjek is a real-time, terminal-based chat application written in C, built specifically for Windows using socket programming. It features user authentication, an admin system, and real-time messaging. Admins can manage user accounts directly from the terminal.
 
 ## Background
 
-I built Jorjek to deepen my understanding of networking fundamentals and client-server architecture. This project helped me implement real-time communication and basic user authentication from scratch, laying the groundwork for more advanced features such as multithreading and secure encryption.
-
----
+I created Jorjek to strengthen my understanding of networking, client-server architecture, and user authentication. Throughout the project, I focused on building real-time communication from scratch while gradually adding more features like role management and system controls. This project serves as a solid base for future improvements like multithreading and secure data handling.
 
 ## Features
 
-- Real-time messaging between two clients using TCP sockets  
-- User authentication with login and signup system  
-- Terminal-based interface optimized for Windows  
-- Clear foundation for adding multithreading and concurrency support  
-
----
+- **User Authentication:** Login and signup system to manage user sessions securely.
+- **Admin Panel:** Admins can:
+  - View all registered users
+  - Delete users
+  - Reset user passwords
+  - View chat logs (planned feature)
+- **Real-Time Chat:** Terminal-based messaging between two clients using TCP sockets.
+- **Role-Based Menus:** Different options for Admins and regular users.
+- **Windows Optimized:** Built and tested for Windows terminals.
 
 ## Known Limitations
 
-- Currently supports communication between up to two users.  
-- Lack of multithreading means it cannot handle multiple clients concurrently.  
-- This limited scope helped focus on core networking and authentication concepts before scaling.  
-
----
+- Supports communication between up to two users at a time.
+- No multithreading yet — cannot handle multiple chats concurrently.
+- Basic file-based account storage (no database yet).
+- Admin chat log viewing is a placeholder or a planned feature.
 
 ## Requirements
 
-- Windows 10 or later  
-- GCC compiler (MinGW or Cygwin recommended)  
-
----
+- Windows 10 or later
+- GCC compiler (MinGW or Cygwin recommended)
 
 ## Installation & Usage
 
-1. Clone the repository:  
-   ```bash
-   git clone https://github.com/yourusername/jorjek.git
-   cd jorjek
+Clone the repository:
+
+```
+git clone https://github.com/yourusername/jorjek.git
+cd jorjek
+```
+```
+gcc main.c LogSign.c utils.c server.c client.c admin.c -o jorjek -lws2_32
+```
+```
+./jorjek
+```
