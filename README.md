@@ -13,7 +13,7 @@ I created Jorjek to strengthen my understanding of networking, client-server arc
   - View all registered users
   - Delete users
   - Reset user passwords
-  - View chat logs (planned feature)
+  - Promote user to admin role
 - **Real-Time Chat:** Terminal-based messaging between two clients using TCP sockets.
 - **Role-Based Menus:** Different options for Admins and regular users.
 - **Windows Optimized:** Built and tested for Windows terminals.
@@ -28,7 +28,7 @@ I created Jorjek to strengthen my understanding of networking, client-server arc
 ## Requirements
 
 - Windows 10 or later
-- GCC compiler (MinGW or Cygwin recommended)
+- GCC compiler (MinGW)
 
 ## Installation & Usage
 
