@@ -103,9 +103,11 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
 //----------------------------- FIRST MENU ------------------------------//
 
 void FirstDisplay(int *choice) {
+    printf("================ JOR JEK ================\n\n");
     printf("1. Log in\n");
     printf("2. Sign up\n");
     printf("3. Exit\n");
+    printf("\n---------------------------------------\n");
     printf("Enter an option: ");
     scanf("%d", choice);
 }
@@ -114,20 +116,22 @@ void FirstDisplay(int *choice) {
 
 // the menu after u login, where u go next
 void MainMenu(const char *loggedInUsername, ROLE role, int *choice) {
-    printf("Welcome, %s!\n\n", loggedInUsername);
+    printf("====================================\n");
+    printf("        Welcome, %s!\n", loggedInUsername);
+    printf("====================================\n\n");
+
     if (role == ROLE_ADMIN) {
-        // admin got more stuff to do
-        printf("1. admin panel\n");
-        printf("2. start server chat\n");
-        printf("3. start client chat\n");
-        printf("4. logout\n");
-        printf("Enter an option: ");
+        printf(" 1. Admin Panel\n");
+        printf(" 2. Start Server Chat\n");
+        printf(" 3. Start Client Chat\n");
+        printf(" 4. Logout\n");
     } else {
-        // normal user menu
-        printf("1. start server chat\n");
-        printf("2. start client chat\n");
-        printf("3. logout\n");
-        printf("Enter an option: ");
+        printf(" 1. Start Server Chat\n");
+        printf(" 2. Start Client Chat\n");
+        printf(" 3. Logout\n");
     }
+
+    printf("\n------------------------------------\n");
+    printf("Enter an option (number): ");
     scanf("%d", choice);
 }

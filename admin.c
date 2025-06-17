@@ -6,13 +6,18 @@
 #include <stdlib.h>
 
 //----------------------------- ADMIN MENU ------------------------------//
-void AdminPanel(const char *loggedInUsername, int *choice)  {
-    printf("Welcome, %s!\n\n", loggedInUsername);
-    printf("1. View all users\n");
-    printf("2. Delete a user\n");
-    printf("3. Reset a user's password\n");
-    printf("4. leave admin mode\n");
+void AdminPanel(int *choice)  {
+    printf("============== ADMIN PANEL ==============\n\n");
+    
+    printf(" 1. View all users\n");
+    printf(" 2. Delete a user\n");
+    printf(" 3. Reset a user's password\n");
+    printf(" 4. Promote to admin\n");
+    printf(" 5. Leave admin mode\n");
+    
+    printf("\n------------------------------------\n");
     printf("Enter an option: ");
+    
     scanf("%d", choice);
 }
 
@@ -24,7 +29,6 @@ int save_accounts_to_file(const char *filename, ACCOUNT account[], int count) {
         return -1;
     }
 
-    // write each account line by line
     for (int i = 0; i < count; i++) {
         fprintf(file, "%d:%s,%s,%d\n", i, account[i].Username, account[i].Password, (int)account[i].role);
     }
@@ -35,23 +39,27 @@ int save_accounts_to_file(const char *filename, ACCOUNT account[], int count) {
 
 //----------------------------- VIEW ALL USER ------------------------------//
 void ViewUser(ACCOUNT account[], int count) {
-
     ClearScreen();
 
     printf("ID:\tUsername\n\n");
-    for(int i = 1; i < count; i++) { // start at 1, idk maybe first one is special?
+    for(int i = 1; i < count; i++) {
         printf("%d:\t%s\n", i, account[i].Username);
     }
+    printf("\n------------------------------------\n");
 }
 
 //----------------------------- DELETE USER ------------------------------//
-int DeleteUser(ACCOUNT account[], int *count) {
-    ViewUser(account, *count); // show users first
+bool DeleteUser(ACCOUNT account[], int *count) {
+    ViewUser(account, *count);
 
-    char *usernameToDelete = get_input("Enter account to delete: ", MAX_NAME_LENGTH);
+    char *usernameToDelete = get_input("Enter account to delete (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
+    if (_stricmp(usernameToDelete, "exit") == 0) {
+        free(usernameToDelete);
+        printf("Deletion cancelled.\n");
+        return false;
+    }
+
     int AccIndex = -1;
-
-    // find the user to delete
     for (int i = 0; i < *count; i++) {
         if (strcmp(usernameToDelete, account[i].Username) == 0) {
             AccIndex = i;
@@ -62,16 +70,15 @@ int DeleteUser(ACCOUNT account[], int *count) {
     if (AccIndex == -1) {
         printf("Account not found.\n");
         free(usernameToDelete);
-        return 0; // no deletion
+        return false;
     }
 
     char *confirmation = get_input("Are you sure? (yes/no): ", 10);
     if (strcmp(confirmation, "yes") == 0 || strcmp(confirmation, "Yes") == 0) {
-        // shift everything left, like erasing the user
         for (int i = AccIndex; i < *count - 1; i++) {
-            account[i] = account[i + 1]; // move each account to left
+            account[i] = account[i + 1];
         }
-        (*count)--; // less user now
+        (*count)--;
         printf("User deleted successfully.\n");
     } else {
         printf("Deletion cancelled.\n");
@@ -79,17 +86,21 @@ int DeleteUser(ACCOUNT account[], int *count) {
 
     free(usernameToDelete);
     free(confirmation);
-    return 1;
+    return true;
 }
 
 //----------------------------- RESET PASSWORD ------------------------------//
-int ResetPass(ACCOUNT account[], int count) {
+bool ResetPass(ACCOUNT account[], int count) {
+    ViewUser(account, count);
 
-    ViewUser(account, count); // show the list
-    char *usernameToReset = get_input("\nEnter account to reset password: ", MAX_NAME_LENGTH);
+    char *usernameToReset = get_input("\nEnter account to reset password (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
+    if (_stricmp(usernameToReset, "exit") == 0) {
+        free(usernameToReset);
+        printf("Password reset cancelled.\n");
+        return false;
+    }
+
     int AccIndex = -1;
-
-    // find the user
     for(int i = 0; i < count; i++) {
         if (strcmp(usernameToReset, account[i].Username) == 0) {
             AccIndex = i;
@@ -100,16 +111,65 @@ int ResetPass(ACCOUNT account[], int count) {
     if(AccIndex == -1) {
         printf("Account not found.\n");
         free(usernameToReset);
-        return 0; 
+        return false; 
     } 
 
-    while(1) { // keep asking until they give valid password
+    while(1) {
         char *ResetPass = get_input("\nEnter new password: ", MAX_PASS_LENGTH);
         if(ValidatePass(ResetPass)) {
-            strcpy(account[AccIndex].Password, ResetPass); // ok password changed
+            strcpy(account[AccIndex].Password, ResetPass);
             free(ResetPass);
             free(usernameToReset);
-            return 1;
+            return true;
         }
     }
+}
+
+//----------------------------- PROMOTE TO ADMIN ------------------------------//
+bool promote(ACCOUNT account[], int count) {
+    ViewUser(account, count);
+    char *usernameToPromote = get_input("\nEnter account to promote (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
+    if (_stricmp(usernameToPromote, "exit") == 0) {
+        free(usernameToPromote);
+        printf("Promotion cancelled.\n");
+        return false;
+    }
+
+    int AccIndex = -1;
+    for(int i = 0; i < count; i++) {
+        if (strcmp(usernameToPromote, account[i].Username) == 0) {
+            AccIndex = i;
+            break;
+        }
+    }
+
+    if(AccIndex == -1) {
+        printf("Account not found.\n");
+        free(usernameToPromote);
+        return false; 
+    } 
+
+    int chance = 3;
+    while (chance != 0) {
+        int code;
+        printf("\nEnter Secret code: ");
+        scanf("%d", &code);
+
+        if (code == SECRET_CODE) {
+            account[AccIndex].role = ROLE_ADMIN;
+            printf("%s has been promoted to ADMIN\n", account[AccIndex].Username);
+            free(usernameToPromote);
+            return true;
+        } else {
+            chance--;
+            if (chance > 0) {
+                printf("Invalid code, %d %s left\n", chance, (chance > 1) ? "tries" : "try");
+            } else {
+                printf("No tries left. Promotion failed.\n");
+            }
+        }
+    }
+
+    free(usernameToPromote);
+    return false;
 }
