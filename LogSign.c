@@ -140,24 +140,39 @@ void MainMenu(const char *loggedInUsername, ROLE role, int *choice) {
 
 //----------------------------- HANDLE MENU ------------------------------//
 void handle_chat_menu(const char *username, int chat_choice, ROLE role) {
-    switch (chat_choice) {
-        case CHAT_SERVER:
-            start_server_chat(username);
-            break;
-
-        case CHAT_CLIENT:
-            start_client_chat(username);
-            break;
-
-        case LOGOUT_ADMIN:
-        case LOGOUT_USER:
-            printf("Logging out...\n");
-            PauseScreen(1000);
-            break;
-
-        default:
-            printf("Invalid choice, try again.\n");
-            PauseScreen(1000);
-            break;
+    if(role == ROLE_ADMIN) {
+        switch(chat_choice) {
+            case 2: // admin menu option 2
+                start_server_chat(username);
+                break;
+            case 3: // admin menu option 3
+                start_client_chat(username);
+                break;
+            case 4: // logout
+                printf("Logging out...\n");
+                PauseScreen(1000);
+                break;
+            default:
+                printf("Invalid choice, try again.\n");
+                PauseScreen(1000);
+                break;
+        }
+    } else {
+        switch(chat_choice) {
+            case CHAT_SERVER:
+                start_server_chat(username);
+                break;
+            case CHAT_CLIENT:
+                start_client_chat(username);
+                break;
+            case LOGOUT_USER:
+                printf("Logging out...\n");
+                PauseScreen(1000);
+                break;
+            default:
+                printf("Invalid choice, try again.\n");
+                PauseScreen(1000);
+                break;
+        }
     }
 }
