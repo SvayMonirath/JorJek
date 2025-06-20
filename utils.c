@@ -5,6 +5,8 @@
 #include <string.h>
 #include <windows.h>
 #include <ctype.h>
+#include <time.h>
+#include <stddef.h> 
 
 //----------------------------- INPUT VALIDATION ------------------------------//
 
@@ -80,4 +82,11 @@ void PauseScreen(int time) {
 void clear_input_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
+}
+
+
+void format_timestamp(char *buf, size_t size) {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    snprintf(buf, size, "%02d:%02d:%02d", t->tm_hour, t->tm_min, t->tm_sec);
 }
