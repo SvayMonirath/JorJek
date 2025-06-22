@@ -1,6 +1,6 @@
 #include "client.h"
 #include "utils.h"
-
+#include "chatlog.h"  // <-- chat log handling
 #include <stdio.h>
 #include <winsock2.h>
 #include <string.h>
@@ -62,10 +62,17 @@ void start_client_chat(const char *username) {
     char server_username[BUF_SIZE];
     strcpy(server_username, buffer);
 
+    // Generate chat filename for this pair of users
+    char chat_filename[256];
+    get_chat_filename(username, server_username, chat_filename, sizeof(chat_filename));
+
+    // Load and display chat history before starting chat
+    CHAT_MESSAGE messages[1000];
+    int msg_count = load_chat_messages(chat_filename, messages, 1000);
+
     ClearScreen();
-    printf("========================================\n");
-    printf(" Connected to %s! Start chatting.\n", server_username);
-    printf("========================================\n\n");
+    printf("\n--- START CHAT SESSION ---\n\n");
+    print_chat_messages(messages, msg_count, username);
 
     while (1) {
         // Prompt user input (right aligned)
@@ -91,10 +98,17 @@ void start_client_chat(const char *username) {
         // Send message
         send(sock, input_buffer, (int)strlen(input_buffer), 0);
 
+        // Save sent message
+        CHAT_MESSAGE sent_msg;
+        strcpy(sent_msg.sender, username);
+        strcpy(sent_msg.timestamp, timestamp);
+        strcpy(sent_msg.message, input_buffer);
+        save_chat_message(username, server_username, &sent_msg);
+
         // Print own message (right aligned)
         printf("%*s [%s]: %s\n\n", padding + (int)strlen(username), username, timestamp, input_buffer);
 
-        // Receive server message (left aligned, minimal gap)
+        // Receive server message (left aligned)
         int recv_len = recv(sock, buffer, BUF_SIZE - 1, 0);
         if (recv_len <= 0) {
             printf("Connection closed by server.\n");
@@ -104,6 +118,13 @@ void start_client_chat(const char *username) {
 
         format_timestamp(timestamp, sizeof(timestamp));
         printf("%s  [%s]: %s\n\n", server_username, timestamp, buffer);
+
+        // Save received message
+        CHAT_MESSAGE rcv_msg;
+        strcpy(rcv_msg.sender, server_username);
+        strcpy(rcv_msg.timestamp, timestamp);
+        strcpy(rcv_msg.message, buffer);
+        save_chat_message(username, server_username, &rcv_msg);
     }
 
     closesocket(sock);

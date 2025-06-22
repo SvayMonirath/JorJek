@@ -1,5 +1,6 @@
 #include "server.h"
 #include "utils.h"
+#include "chatlog.h"
 
 #include <stdio.h>
 #include <winsock2.h>
@@ -66,10 +67,9 @@ void start_server_chat(const char *username) {
         return;
     }
 
-    // Send server username
+    //send username
     send(client_socket, username, (int)strlen(username), 0);
 
-    // Receive client username
     int name_len = recv(client_socket, buffer, BUF_SIZE - 1, 0);
     if (name_len <= 0) {
         printf("Failed to receive username from client.\n");
@@ -82,13 +82,20 @@ void start_server_chat(const char *username) {
     char client_username[BUF_SIZE];
     strcpy(client_username, buffer);
 
+    // generate chat filename for this pair
+    char chat_filename[256];
+    get_chat_filename(username, client_username, chat_filename, sizeof(chat_filename));
+
+    // load and display chat history before starting chat
+    CHAT_MESSAGE messages[1000];
+    int msg_count = load_chat_messages(chat_filename, messages, 1000);
+
     ClearScreen();
-    printf("========================================\n");
-    printf(" User %s connected! Start Chatting.\n", client_username);
-    printf("========================================\n\n");
+    printf("\n--- START CHAT SESSION ---\n\n");
+    print_chat_messages(messages, msg_count, username);
 
     while (1) {
-        // Receive message from client
+        // receive message from client
         int recv_len = recv(client_socket, buffer, BUF_SIZE - 1, 0);
         if (recv_len <= 0) {
             printf("Connection closed by client\n");
@@ -96,11 +103,17 @@ void start_server_chat(const char *username) {
         }
         buffer[recv_len] = '\0';
 
-        // Print client message (left aligned, minimal gap)
         format_timestamp(timestamp, sizeof(timestamp));
         printf("%s  [%s]: %s\n", client_username, timestamp, buffer);
 
-        // Prompt server user input (right aligned)
+        // save received message
+        CHAT_MESSAGE rcv_msg;
+        strcpy(rcv_msg.sender, client_username);
+        strcpy(rcv_msg.timestamp, timestamp);
+        strcpy(rcv_msg.message, buffer);
+        save_chat_message(username, client_username, &rcv_msg);
+
+        // prompt server user input (right aligned)
         format_timestamp(timestamp, sizeof(timestamp));
         printf("\n");
 
@@ -120,10 +133,17 @@ void start_server_chat(const char *username) {
             break;
         }
 
-        // Send server message to client
+        // send server message to client
         send(client_socket, input_buffer, (int)strlen(input_buffer), 0);
 
-        // Print own message (right aligned)
+        // save sent message
+        CHAT_MESSAGE sent_msg;
+        strcpy(sent_msg.sender, username);
+        strcpy(sent_msg.timestamp, timestamp);
+        strcpy(sent_msg.message, input_buffer);
+        save_chat_message(username, client_username, &sent_msg);
+
+        // print own message (right aligned)
         printf("%*s [%s]: %s\n\n", padding + (int)strlen(username), username, timestamp, input_buffer);
     }
 

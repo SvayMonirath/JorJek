@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <winsock2.h>
+#include "chatlog.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
