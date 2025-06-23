@@ -39,7 +39,7 @@ git clone https://github.com/yourusername/jorjek.git
 cd jorjek
 ```
 ```
-gcc main.c LogSign.c utils.c server.c client.c admin.c -o jorjek -lws2_32
+gcc main.c utils.c server.c client.c LogSign.c admin.c chatlog.c -o jorjek -lws2_32
 ```
 ```
 ./jorjek
