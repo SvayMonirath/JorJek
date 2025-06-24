@@ -39,8 +39,8 @@ git clone https://github.com/yourusername/jorjek.git
 cd jorjek
 ```
 ```
-gcc main.c utils.c server.c client.c LogSign.c admin.c chatlog.c -o jorjek -lws2_32
+gcc src\*.c -Iinclude -o jorjek.exe -lws2_32
 ```
 ```
-./jorjek
+./build/jorjek.exe
 ```
