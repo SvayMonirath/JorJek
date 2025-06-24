@@ -1,6 +1,7 @@
 #include "client.h"
 #include "utils.h"
-#include "chatlog.h"  // <-- chat log handling
+#include "chatlog.h"
+
 #include <stdio.h>
 #include <winsock2.h>
 #include <string.h>
@@ -15,7 +16,7 @@ void start_client_chat(const char *username) {
     struct sockaddr_in server_addr;
     char buffer[BUF_SIZE];
     char input_buffer[BUF_SIZE];
-    char timestamp[16];
+    char timestamp[MAX_FULL_TIMESTAMP_LEN];
 
     ClearScreen();
     printf("Enter IP: ");
@@ -101,12 +102,12 @@ void start_client_chat(const char *username) {
         // Save sent message
         CHAT_MESSAGE sent_msg;
         strcpy(sent_msg.sender, username);
-        strcpy(sent_msg.timestamp, timestamp);
+        strcpy(sent_msg.full_timestamp, timestamp);
         strcpy(sent_msg.message, input_buffer);
         save_chat_message(username, server_username, &sent_msg);
 
         // Print own message (right aligned)
-        printf("%*s [%s]: %s\n\n", padding + (int)strlen(username), username, timestamp, input_buffer);
+        printf("%*s [%s]: %s\n\n", padding + (int)strlen(username), username, timestamp + 11, input_buffer);
 
         // Receive server message (left aligned)
         int recv_len = recv(sock, buffer, BUF_SIZE - 1, 0);
@@ -117,12 +118,12 @@ void start_client_chat(const char *username) {
         buffer[recv_len] = '\0';
 
         format_timestamp(timestamp, sizeof(timestamp));
-        printf("%s  [%s]: %s\n\n", server_username, timestamp, buffer);
+        printf("%s  [%s]: %s\n\n", server_username, timestamp + 11, buffer);
 
         // Save received message
         CHAT_MESSAGE rcv_msg;
         strcpy(rcv_msg.sender, server_username);
-        strcpy(rcv_msg.timestamp, timestamp);
+        strcpy(rcv_msg.full_timestamp, timestamp);
         strcpy(rcv_msg.message, buffer);
         save_chat_message(username, server_username, &rcv_msg);
     }

@@ -3,18 +3,30 @@
 
 #include <stdbool.h>
 #include "LogSign.h"
-#include <stddef.h> 
+#include <stddef.h>
 
-// Input Validation
+//----------------------------- INPUT VALIDATION ------------------------------//
 bool ValidUsername(const char *username, ACCOUNT account[], int count);
 bool ValidatePass(char *password);
 void removeUnwantedSpace(char *str);
 
-// UI and I/O
+//----------------------------- SYSTEM / UTILITY ------------------------------//
 void ClearScreen();
 void PauseScreen(int time);
 void clear_input_buffer();
-char* get_input(const char *prompt, int size);
 void format_timestamp(char *buf, size_t size);
 
-#endif
+//----------------------------- ACCOUNT HELPER ------------------------------//
+int find_account_index(const ACCOUNT accounts[], int count, const char *username);
+
+//----------------------------- INPUT HANDLING ------------------------------//
+char* get_input(const char *prompt, int size);
+char* get_username_input(const char* prompt);
+char* get_password_input(const char* prompt);
+bool get_confirmation(const char* prompt);
+
+//----------------------------- ENCRYPTION ------------------------------//
+void xor_encrypt_decrypt(char *data, size_t data_size, const char *key);
+
+
+#endif // UTILS_H

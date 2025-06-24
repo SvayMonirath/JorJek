@@ -27,15 +27,13 @@ int main(void) {
                 ClearScreen();
                 printf("================ LOG IN =================\n\n");
 
-                char *username = get_input("Username (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
-                if (_stricmp(username, "exit") == 0) {
+                char *username = get_username_input("Username (or type 'exit' to cancel): ");
+                if (!username) break;
+
+                char *password = get_password_input("Password (or type 'exit' to cancel): ");
+                if (!password) {
                     free(username);
-                    break; // go back to main menu loop
-                }
-                char *password = get_input("Password (or type 'exit' to cancel): ", MAX_PASS_LENGTH);
-                if (_stricmp(username, "exit") == 0) {
-                    free(username);
-                    break; // go back to main menu loop
+                    break;
                 }
 
                 bool success = VerifyLogin(account, Acc_count, username, password, &user_role);
@@ -53,70 +51,7 @@ int main(void) {
                         clear_input_buffer();
 
                         if (user_role == ROLE_ADMIN && chat_choice == 1) {
-                            // Admin Panel
-                            int AdminChoice = 0;
-                            do {
-                                ClearScreen();
-                                AdminPanel(&AdminChoice);
-                                clear_input_buffer();
-
-                                switch (AdminChoice) {
-                                    case 1: { // View users
-                                        while (1) {
-                                            ViewUser(account, Acc_count);
-                                            char *input = get_input("Write (exit) to leave: ", 10);
-                                            if (_stricmp(input, "exit") == 0) {
-                                                free(input);
-                                                break;
-                                            }
-                                            free(input);
-                                        }
-                                        break;
-                                    }
-                                    case 2: // Delete user
-                                        if (DeleteUser(account, &Acc_count)) {
-                                            if (save_accounts_to_file(FILE_NAME, account, Acc_count)) {
-                                                printf("\nAccount Deleted Successfully\n");
-                                            } else {
-                                                printf("\nError saving changes!\n");
-                                            }
-                                            PauseScreen(2000);
-                                        }
-                                        break;
-
-                                    case 3: // Reset password
-                                        if (ResetPass(account, Acc_count)) {
-                                            if (save_accounts_to_file(FILE_NAME, account, Acc_count)) {
-                                                printf("Password Reset Successfully\n");
-                                            } else {
-                                                printf("\nError saving changes!\n");
-                                            }
-                                            PauseScreen(2000);
-                                        }
-                                        break;
-
-                                    case 4: // Promote user
-                                        if (promote(account, Acc_count)) {
-                                            if (save_accounts_to_file(FILE_NAME, account, Acc_count)) {
-                                                printf("Change Saved Successfully\n");
-                                            } else {
-                                                printf("\nError saving changes!\n");
-                                            }
-                                            PauseScreen(2000);
-                                        }
-                                        break;
-
-                                    case 5: // Exit admin panel
-                                        ClearScreen();
-                                        printf("Exiting Back to Main Menu...\n");
-                                        PauseScreen(1000);
-                                        break;
-
-                                    default:
-                                        printf("Invalid choice, try again.\n");
-                                        PauseScreen(1000);
-                                }
-                            } while (AdminChoice != 5);
+                            AdminMenuLoop(account, &Acc_count);
                         } else {
                             handle_chat_menu(username_buffer, chat_choice, user_role);
                         }
@@ -138,7 +73,8 @@ int main(void) {
                 ClearScreen();
                 printf("=============== SIGN UP =================\n\n");
 
-                char *username = get_input("Create username (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
+                char *username = get_username_input("Create username (or type 'exit' to cancel): ");
+                if (!username) break;
 
                 if (!ValidUsername(username, account, Acc_count)) {
                     printf("Username already taken\n");
@@ -147,17 +83,10 @@ int main(void) {
                     break;
                 }
 
-                if (_stricmp(username, "exit") == 0) {
+                char *password = get_password_input("Create password (or type 'exit' to cancel): ");
+                if (!password) {
                     free(username);
-                    break; // go back to main menu loop
-                }
-
-                char *password = get_input("Create password (or type 'exit' to cancel): ", MAX_PASS_LENGTH);
-
-                if (_stricmp(password, "exit") == 0) {
-                    free(username);
-                    free(password);
-                    break; // go back to main menu loop
+                    break;
                 }
 
                 if (!ValidatePass(password)) {
@@ -169,7 +98,7 @@ int main(void) {
                 }
 
                 if (SignUp(account, &Acc_count, username, password)) {
-                    if (save_accounts_to_file(FILE_NAME, account, Acc_count)) {
+                    if (save_accounts_to_file(FILE_NAME, account, Acc_count) == 0) {
                         printf("\nYou can now login with your new account!\n");
                     } else {
                         printf("\nError saving new account!\n");
@@ -192,6 +121,7 @@ int main(void) {
                 ClearScreen();
                 printf("Invalid option. Try again.\n");
                 PauseScreen(1000);
+                break;
         }
     }
 

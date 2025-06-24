@@ -1,70 +1,61 @@
 #include "admin.h"
-#include "LogSign.h"
 #include "utils.h"
+#include "LogSign.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-//----------------------------- ADMIN MENU ------------------------------//
+//----------------------------- ADMIN PANEL ------------------------------//
 void AdminPanel(int *choice)  {
     printf("============== ADMIN PANEL ==============\n\n");
-    
     printf(" 1. View all users\n");
     printf(" 2. Delete a user\n");
     printf(" 3. Reset a user's password\n");
     printf(" 4. Promote to admin\n");
     printf(" 5. Leave admin mode\n");
-    
     printf("\n------------------------------------\n");
     printf("Enter an option: ");
-    
     scanf("%d", choice);
+    clear_input_buffer();
 }
 
-//----------------------------- SAVE TO FILE ------------------------------//
-int save_accounts_to_file(const char *filename, ACCOUNT account[], int count) {
-    FILE *file = fopen(filename, "w");
+//----------------------------- SAVE FILE ------------------------------//
+int save_accounts_to_file(const char *filename, ACCOUNT accounts[], int count) {
+    FILE *file = fopen(filename, "w");  // overwrite in text mode
     if (!file) {
-        perror("failed to open file in write mode\n");
+        perror("failed to open file in write mode");
         return -1;
     }
 
     for (int i = 0; i < count; i++) {
-        fprintf(file, "%d:%s,%s,%d\n", i, account[i].Username, account[i].Password, (int)account[i].role);
+        fprintf(file, "%d:%s,%s,%d\n", i, accounts[i].Username, accounts[i].Password, (int)accounts[i].role);
     }
 
     fclose(file);
     return 0;
 }
 
-//----------------------------- VIEW ALL USER ------------------------------//
-void ViewUser(ACCOUNT account[], int count) {
-    ClearScreen();
 
-    // Step 1: Automatically show all non-admin usernames first
+//----------------------------- VIEW USER ------------------------------//
+void ViewUser(ACCOUNT accounts[], int count) {
+    ClearScreen();
     printf("============== USER LIST ==============\n\n");
     printf("ID:\tUsername\n\n");
 
-    int display_id = 1; // Display counter
-    for (int i = 1; i < count; i++) {
-        if (account[i].role != ROLE_ADMIN) { // Skip admins
-            printf("%d:\t%s\n", display_id, account[i].Username);
+    int display_id = 1;
+    for (int i = 0; i < count; i++) {
+        if (accounts[i].role != ROLE_ADMIN) {
+            printf("%d:\t%s\n", display_id, accounts[i].Username);
             display_id++;
         }
     }
-
-    if (display_id == 1) { // No users to display
+    if (display_id == 1) {
         printf("No regular users found.\n");
     }
-
     printf("\n------------------------------------\n");
 
-    // Step 2: Ask if they want to view passwords
-    char *input = get_input("Do you want to view passwords? (yes/no): ", 10);
-
-    if (_stricmp(input, "yes") == 0) {
+    if (get_confirmation("Do you want to view passwords? (yes/no): ")) {
         int chance = 3;
-
         while (chance > 0) {
             int code;
             printf("\nEnter secret code: ");
@@ -77,17 +68,12 @@ void ViewUser(ACCOUNT account[], int count) {
                 printf("ID:\tUsername\tPassword\n\n");
 
                 int pass_display_id = 1;
-                for (int i = 1; i < count; i++) {
-                    if (account[i].role != ROLE_ADMIN) { // Skip admins
-                        printf("%d:\t%s\t\t%s\n", pass_display_id, account[i].Username, account[i].Password);
+                for (int i = 0; i < count; i++) {
+                    if (accounts[i].role != ROLE_ADMIN) {
+                        printf("%d:\t%s\t\t%s\n", pass_display_id, accounts[i].Username, accounts[i].Password);
                         pass_display_id++;
                     }
                 }
-
-                if (pass_display_id == 1) { // No users to display
-                    printf("No regular users found.\n");
-                }
-
                 printf("\n------------------------------------\n");
                 break;
             } else {
@@ -102,30 +88,19 @@ void ViewUser(ACCOUNT account[], int count) {
     } else {
         printf("Password view skipped.\n");
     }
-
-    free(input);
 }
 
-
-
 //----------------------------- DELETE USER ------------------------------//
-bool DeleteUser(ACCOUNT account[], int *count) {
-    ViewUser(account, *count);
+bool DeleteUser(ACCOUNT accounts[], int *count) {
+    ViewUser(accounts, *count);
 
-    char *usernameToDelete = get_input("Enter account to delete (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
-    if (_stricmp(usernameToDelete, "exit") == 0) {
-        free(usernameToDelete);
+    char *usernameToDelete = get_username_input("Enter account to delete (or type 'exit' to cancel): ");
+    if (!usernameToDelete) {
         printf("Deletion cancelled.\n");
         return false;
     }
 
-    int AccIndex = -1;
-    for (int i = 0; i < *count; i++) {
-        if (strcmp(usernameToDelete, account[i].Username) == 0) {
-            AccIndex = i;
-            break;
-        }
-    }
+    int AccIndex = find_account_index(accounts, *count, usernameToDelete);
 
     if (AccIndex == -1) {
         printf("Account not found.\n");
@@ -133,10 +108,9 @@ bool DeleteUser(ACCOUNT account[], int *count) {
         return false;
     }
 
-    char *confirmation = get_input("Are you sure? (yes/no): ", 10);
-    if (strcmp(confirmation, "yes") == 0 || strcmp(confirmation, "Yes") == 0) {
+    if (get_confirmation("Are you sure you want to delete this user? (yes/no): ")) {
         for (int i = AccIndex; i < *count - 1; i++) {
-            account[i] = account[i + 1];
+            accounts[i] = accounts[i + 1];
         }
         (*count)--;
         printf("User deleted successfully.\n");
@@ -145,79 +119,76 @@ bool DeleteUser(ACCOUNT account[], int *count) {
     }
 
     free(usernameToDelete);
-    free(confirmation);
     return true;
 }
 
 //----------------------------- RESET PASSWORD ------------------------------//
-bool ResetPass(ACCOUNT account[], int count) {
-    ViewUser(account, count);
+bool ResetPass(ACCOUNT accounts[], int count) {
+    ViewUser(accounts, count);
 
-    char *usernameToReset = get_input("\nEnter account to reset password (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
-    if (_stricmp(usernameToReset, "exit") == 0) {
-        free(usernameToReset);
+    char *usernameToReset = get_username_input("\nEnter account to reset password (or type 'exit' to cancel): ");
+    if (!usernameToReset) {
         printf("Password reset cancelled.\n");
         return false;
     }
 
-    int AccIndex = -1;
-    for(int i = 0; i < count; i++) {
-        if (strcmp(usernameToReset, account[i].Username) == 0) {
-            AccIndex = i;
-            break;
-        }
-    }
+    int AccIndex = find_account_index(accounts, count, usernameToReset);
 
-    if(AccIndex == -1) {
+    if (AccIndex == -1) {
         printf("Account not found.\n");
         free(usernameToReset);
-        return false; 
-    } 
+        return false;
+    }
 
-    while(1) {
-        char *ResetPass = get_input("\nEnter new password: ", MAX_PASS_LENGTH);
-        if(ValidatePass(ResetPass)) {
-            strcpy(account[AccIndex].Password, ResetPass);
-            free(ResetPass);
+    while (1) {
+        char *newPass = get_password_input("\nEnter new password (or type 'exit' to cancel): ");
+        if (!newPass) {
             free(usernameToReset);
+            printf("Password reset cancelled.\n");
+            return false;
+        }
+
+        if (ValidatePass(newPass)) {
+            strcpy(accounts[AccIndex].Password, newPass);
+            free(newPass);
+            free(usernameToReset);
+            printf("Password reset successful.\n");
             return true;
+        } else {
+            printf("Password not strong enough, try again.\n");
+            free(newPass);
         }
     }
 }
 
-//----------------------------- PROMOTE TO ADMIN ------------------------------//
-bool promote(ACCOUNT account[], int count) {
-    ViewUser(account, count);
-    char *usernameToPromote = get_input("\nEnter account to promote (or type 'exit' to cancel): ", MAX_NAME_LENGTH);
-    if (_stricmp(usernameToPromote, "exit") == 0) {
-        free(usernameToPromote);
+//----------------------------- PROMOTE USER ------------------------------//
+bool promote(ACCOUNT accounts[], int count) {
+    ViewUser(accounts, count);
+
+    char *usernameToPromote = get_username_input("\nEnter account to promote (or type 'exit' to cancel): ");
+    if (!usernameToPromote) {
         printf("Promotion cancelled.\n");
         return false;
     }
 
-    int AccIndex = -1;
-    for(int i = 0; i < count; i++) {
-        if (strcmp(usernameToPromote, account[i].Username) == 0) {
-            AccIndex = i;
-            break;
-        }
-    }
+    int AccIndex = find_account_index(accounts, count, usernameToPromote);
 
-    if(AccIndex == -1) {
+    if (AccIndex == -1) {
         printf("Account not found.\n");
         free(usernameToPromote);
-        return false; 
-    } 
+        return false;
+    }
 
     int chance = 3;
-    while (chance != 0) {
+    while (chance > 0) {
         int code;
         printf("\nEnter Secret code: ");
         scanf("%d", &code);
+        clear_input_buffer();
 
         if (code == SECRET_CODE) {
-            account[AccIndex].role = ROLE_ADMIN;
-            printf("%s has been promoted to ADMIN\n", account[AccIndex].Username);
+            accounts[AccIndex].role = ROLE_ADMIN;
+            printf("%s has been promoted to ADMIN\n", accounts[AccIndex].Username);
             free(usernameToPromote);
             return true;
         } else {
@@ -232,4 +203,105 @@ bool promote(ACCOUNT account[], int count) {
 
     free(usernameToPromote);
     return false;
+}
+
+//----------------------------- ADMIN MENU LOOP ------------------------------//
+void AdminMenuLoop(ACCOUNT accounts[], int *accounts_count) {
+    int AdminChoice = 0;
+    do {
+        ClearScreen();
+        AdminPanel(&AdminChoice);
+
+        switch (AdminChoice) {
+            case 1: // View users
+                while (1) {
+                    ViewUser(accounts, *accounts_count);
+                    char *input = get_input("Write (exit) to leave: ", 10);
+                    if (_stricmp(input, "exit") == 0) {
+                        free(input);
+                        break;
+                    }
+                    free(input);
+                }
+                break;
+
+            case 2: // Delete user
+                if (DeleteUser(accounts, accounts_count)) {
+                    if (save_accounts_to_file(FILE_NAME, accounts, *accounts_count) == 0) {
+                        printf("\nAccount Deleted Successfully\n");
+                    } else {
+                        printf("\nError saving changes!\n");
+                    }
+                    PauseScreen(2000);
+                }
+                break;
+
+            case 3: // Reset password
+                if (ResetPass(accounts, *accounts_count)) {
+                    if (save_accounts_to_file(FILE_NAME, accounts, *accounts_count) == 0) {
+                        printf("Password Reset Successfully\n");
+                    } else {
+                        printf("\nError saving changes!\n");
+                    }
+                    PauseScreen(2000);
+                }
+                break;
+
+            case 4: // Promote user
+                if (promote(accounts, *accounts_count)) {
+                    if (save_accounts_to_file(FILE_NAME, accounts, *accounts_count) == 0) {
+                        printf("Change Saved Successfully\n");
+                    } else {
+                        printf("\nError saving changes!\n");
+                    }
+                    PauseScreen(2000);
+                }
+                break;
+
+            case 5: // Exit admin panel
+                ClearScreen();
+                printf("Exiting Back to Main Menu...\n");
+                PauseScreen(1000);
+                break;
+
+            default:
+                printf("Invalid choice, try again.\n");
+                PauseScreen(1000);
+                break;
+        }
+    } while (AdminChoice != 5);
+}
+
+//----------------------------- ENSURE DEFAULT ADMIN ------------------------------//
+void EnsureDefaultAdminExists(ACCOUNT accounts[], int *count) {
+    bool admin_exists = false;
+    for (int i = 0; i < *count; i++) {
+        if (accounts[i].role == ROLE_ADMIN) {
+            admin_exists = true;
+            break;
+        }
+    }
+
+    if (!admin_exists) {
+        printf("No admin found! Creating default admin account.\n");
+
+        ACCOUNT admin_account;
+        strcpy(admin_account.Username, "Monirath");
+        strcpy(admin_account.Password, "AdminRath1");
+        admin_account.role = ROLE_ADMIN;
+
+        if (*count < MAX_NUM_ACC) {
+            accounts[(*count)++] = admin_account;
+            if (save_accounts_to_file(FILE_NAME, accounts, *count) == 0) {
+                printf("Default admin account created\n");
+            } else {
+                printf("Failed to save default admin account!\n");
+            }
+        } else {
+            printf("Max account limit reached! Cannot create default admin.\n");
+        }
+
+        printf("Press Enter to continue...");
+        getchar();
+    }
 }

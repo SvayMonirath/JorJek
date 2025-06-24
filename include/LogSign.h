@@ -7,8 +7,8 @@
 #define MAX_PASS_LENGTH 20
 #define MAX_NAME_LENGTH 30
 #define MAX_NUM_ACC 20
-#define FILE_NAME "user.csv"
-#define CHAT_FILE_NAME "chat.csv"
+#define FILE_NAME "data/user.csv"
+#define CHAT_FILE_NAME "data/chat.csv"
 
 #define CHAT_SERVER 1
 #define CHAT_CLIENT 2

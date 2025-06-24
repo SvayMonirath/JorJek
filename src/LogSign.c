@@ -10,55 +10,54 @@
 
 // this one just get account info from file and put into struct
 int load_accounts_from_file(const char *filename, ACCOUNT accounts[]) {
-    FILE *file = fopen(filename, "r");
+    FILE *file = fopen(filename, "r");  // text mode
     if (!file) {
-        perror("could not open file man");
-        return -1;
+        perror("Could not open file");
+        return 0;
     }
 
+    char line[256];
     int count = 0;
-    char buffer[256];
-    while (fgets(buffer, sizeof(buffer), file)) {
-        int account_id;
-        char username[MAX_NAME_LENGTH];
-        char password[MAX_PASS_LENGTH];
-        int role_int;
 
-        // the format (id:username,password,role)
-        if (sscanf(buffer, "%d:%29[^,],%19[^,],%d", &account_id, username, password, &role_int) == 4) {
-            removeUnwantedSpace(username);
-            removeUnwantedSpace(password);
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\r\n")] = 0;  // remove newline
 
-            // ok now just copy to the account list
-            strcpy(accounts[count].Username, username);
-            strcpy(accounts[count].Password, password);
-            accounts[count].role = (role_int == 1) ? ROLE_ADMIN : ROLE_USER;
+        // Format: "index:username,password,role"
+        char *index_part = strtok(line, ":");
+        char *rest = strtok(NULL, ":");
+        if (!rest) continue;
 
-            count++;
-            if (count >= MAX_NUM_ACC) break; // nah bro we full now
-        } else {
-            printf("Warning: Skipping invalid line: %s", buffer);
-        }
+        char *username = strtok(rest, ",");
+        char *password = strtok(NULL, ",");
+        char *role_str = strtok(NULL, ",");
+
+        if (!username || !password || !role_str) continue;
+
+        strcpy(accounts[count].Username, username);
+        strcpy(accounts[count].Password, password);
+        accounts[count].role = atoi(role_str);
+
+        count++;
+        if (count >= MAX_NUM_ACC) break;
     }
 
     fclose(file);
-    return count; // return how many accounts we got
+    return count;
 }
+
 
 //----------------------------- LOGIN ------------------------------//
 
 // check username and password to see if can login or nah
 bool VerifyLogin(const ACCOUNT accounts[], int accounts_count, const char *username, const char *password, ROLE *out_role) {
-    for (int i = 0; i < accounts_count; i++) {
-        if (strcmp(username, accounts[i].Username) == 0) {
-            if (strcmp(password, accounts[i].Password) == 0) {
-                if (out_role) *out_role = accounts[i].role; // tell them the role
-                return true; // we good, can login 
-            }
-            return false; // username right but password wrong
-        }
+    int index = find_account_index(accounts, accounts_count, username);
+    if (index == -1) return false; // username not found
+
+    if (strcmp(password, accounts[index].Password) == 0) {
+        if (out_role) *out_role = accounts[index].role;
+        return true;  // login successful
     }
-    return false; // username not found at all bro
+    return false; // password wrong
 }
 
 //----------------------------- SIGNUP ------------------------------//
@@ -71,20 +70,16 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
         return false;
     }
 
-    // see if username already taken or not
-    for (int i = 0; i < *accounts_count; i++) {
-        if (strcmp(accounts[i].Username, username) == 0) {
-            printf("Username already taken\n");
-            PauseScreen(1000);
-            return false;
-        }
+    if (find_account_index(accounts, *accounts_count, username) != -1) {
+        printf("Username already taken\n");
+        PauseScreen(1000);
+        return false;
     }
 
-    // ok username free, let's make new account now
     int index = *accounts_count;
     strcpy(accounts[index].Username, username);
     strcpy(accounts[index].Password, password);
-    accounts[index].role = ROLE_USER; // new account alway user by default
+    accounts[index].role = ROLE_USER;
 
     FILE *file = fopen(FILE_NAME, "a");
     if (!file) {
@@ -93,7 +88,7 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
         return false;
     }
 
-    fprintf(file, "%d:%s,%s,%d\n", index, username, password, (int)ROLE_USER); // write it down to file
+    fprintf(file, "%d:%s,%s,%d\n", index, username, password, (int)ROLE_USER);
     fclose(file);
 
     (*accounts_count)++;
@@ -101,6 +96,7 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
     PauseScreen(1000);
     return true;
 }
+
 
 //----------------------------- FIRST MENU ------------------------------//
 
