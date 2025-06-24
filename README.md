@@ -39,7 +39,7 @@ git clone https://github.com/yourusername/jorjek.git
 cd jorjek
 ```
 ```
-gcc src\*.c -Iinclude -o jorjek.exe -lws2_32
+gcc src\*.c -Iinclude -o build/jorjek.exe -lws2_32
 ```
 ```
 ./build/jorjek.exe
