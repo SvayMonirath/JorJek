@@ -9,6 +9,8 @@
 #include <direct.h>
 #include <errno.h>
 
+
+
 //----------------------------- INPUT VALIDATION ------------------------------//
 
 bool ValidUsername(const char *username, ACCOUNT account[], int count) {
@@ -159,3 +161,5 @@ void wait_for_exit_prompt(const char *message) {
         ClearScreen();
     }
 }
+
+

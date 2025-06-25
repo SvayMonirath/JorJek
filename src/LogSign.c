@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "server.h"
 #include "client.h"
+#include "sound.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,6 +140,7 @@ void FirstDisplay(int *choice) {
     printf("\n---------------------------------------\n");
     printf("Enter an option: ");
     scanf("%d", choice);
+    click_sound();
 }
 
 //----------------------------- MAIN MENU ------------------------------//
@@ -162,6 +165,7 @@ void MainMenu(const char *loggedInUsername, ROLE role, int *choice) {
     printf("\n------------------------------------\n");
     printf("Enter an option (number): ");
     scanf("%d", choice);
+    click_sound();
 }
 
 //----------------------------- HANDLE MENU ------------------------------//

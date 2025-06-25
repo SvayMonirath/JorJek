@@ -1,6 +1,7 @@
 #include "server.h"
 #include "utils.h"
 #include "chatlog.h"
+#include "sound.h"
 
 #include <stdio.h>
 #include <winsock2.h>
@@ -104,6 +105,9 @@ void start_server_chat(const char *username) {
         }
         buffer[recv_len] = '\0';
 
+        // Play notification sound on message receive
+        chat_sound();
+
         // Format timestamp for received message
         format_timestamp(timestamp, sizeof(timestamp));
         printf("%s  [%s]: %s\n", client_username, timestamp + 11, buffer); // also print here for realtime feedback
@@ -137,6 +141,8 @@ void start_server_chat(const char *username) {
 
         // Send server message to client
         send(client_socket, input_buffer, (int)strlen(input_buffer), 0);
+
+        chat_sound();
 
         // Save sent message
         CHAT_MESSAGE sent_msg;

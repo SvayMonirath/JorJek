@@ -29,5 +29,7 @@ void wait_for_exit_prompt(const char *message);
 //----------------------------- ENCRYPTION ------------------------------//
 void xor_encrypt_decrypt(char *data, size_t data_size, const char *key);
 
+void playChatSound();
+
 
 #endif // UTILS_H

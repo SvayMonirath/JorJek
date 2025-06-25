@@ -1,6 +1,8 @@
 #include "admin.h"
 #include "utils.h"
 #include "LogSign.h"
+#include "sound.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +19,7 @@ void AdminPanel(int *choice)  {
     printf("Enter an option: ");
     scanf("%d", choice);
     clear_input_buffer();
+    click_sound();
 }
 
 //----------------------------- VIEW USER ------------------------------//
@@ -69,7 +72,7 @@ void ViewUser(ACCOUNT accounts[], int count) {
             }
         }
     } else {
-        printf("Password view skipped.\n");
+        printf("\n\nPassword view skipped.\n");
     }
 }
 
