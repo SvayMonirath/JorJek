@@ -142,3 +142,20 @@ void xor_encrypt_decrypt(char *data, size_t data_size, const char *key) {
         data[i] ^= key[i % key_len];
     }
 }
+
+
+void wait_for_exit_prompt(const char *message) {
+    char input[32];
+
+    while (1) {
+        printf("%s", message);
+        fgets(input, sizeof(input), stdin);
+
+        // remove trailing newline
+        input[strcspn(input, "\r\n")] = 0;
+
+        if (_stricmp(input, "exit") == 0) break;
+
+        ClearScreen();
+    }
+}

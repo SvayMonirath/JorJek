@@ -19,23 +19,6 @@ void AdminPanel(int *choice)  {
     clear_input_buffer();
 }
 
-//----------------------------- SAVE FILE ------------------------------//
-int save_accounts_to_file(const char *filename, ACCOUNT accounts[], int count) {
-    FILE *file = fopen(filename, "w");  // overwrite in text mode
-    if (!file) {
-        perror("failed to open file in write mode");
-        return -1;
-    }
-
-    for (int i = 0; i < count; i++) {
-        fprintf(file, "%d:%s,%s,%d\n", i, accounts[i].Username, accounts[i].Password, (int)accounts[i].role);
-    }
-
-    fclose(file);
-    return 0;
-}
-
-
 //----------------------------- VIEW USER ------------------------------//
 void ViewUser(ACCOUNT accounts[], int count) {
     ClearScreen();

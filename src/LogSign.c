@@ -8,21 +8,16 @@
 
 //----------------------------- LOAD_ACCOUNT ------------------------------//
 
-// this one just get account info from file and put into struct
 int load_accounts_from_file(const char *filename, ACCOUNT accounts[]) {
-    FILE *file = fopen(filename, "r");  // text mode
-    if (!file) {
-        perror("Could not open file");
-        return 0;
-    }
+    FILE *file = fopen(filename, "r");
+    if (!file) return 0;
 
     char line[256];
     int count = 0;
 
     while (fgets(line, sizeof(line), file)) {
-        line[strcspn(line, "\r\n")] = 0;  // remove newline
+        line[strcspn(line, "\r\n")] = 0;
 
-        // Format: "index:username,password,role"
         char *index_part = strtok(line, ":");
         char *rest = strtok(NULL, ":");
         if (!rest) continue;
@@ -30,12 +25,16 @@ int load_accounts_from_file(const char *filename, ACCOUNT accounts[]) {
         char *username = strtok(rest, ",");
         char *password = strtok(NULL, ",");
         char *role_str = strtok(NULL, ",");
+        char *failed_str = strtok(NULL, ",");
+        char *lockout_str = strtok(NULL, ",");
 
-        if (!username || !password || !role_str) continue;
+        if (!username || !password || !role_str || !failed_str || !lockout_str) continue;
 
         strcpy(accounts[count].Username, username);
         strcpy(accounts[count].Password, password);
         accounts[count].role = atoi(role_str);
+        accounts[count].failed_attempts = atoi(failed_str);
+        accounts[count].lockout_until = atol(lockout_str);
 
         count++;
         if (count >= MAX_NUM_ACC) break;
@@ -43,6 +42,37 @@ int load_accounts_from_file(const char *filename, ACCOUNT accounts[]) {
 
     fclose(file);
     return count;
+}
+
+// Save accounts to file - implemented only here
+int save_accounts_to_file(const char *filename, ACCOUNT accounts[], int count) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        perror("failed to open file in write mode");
+        return -1;
+    }
+
+    char datetime[20];  
+
+    for (int i = 0; i < count; i++) {
+        if (accounts[i].lockout_until == 0) {
+            
+            strcpy(datetime, "0000-00-00 00:00:00");
+        } else {
+            struct tm *lt = localtime(&accounts[i].lockout_until);
+            strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", lt);
+        }
+
+        fprintf(file, "%d:%s,%s,%d,%d,%s\n", i,
+            accounts[i].Username,
+            accounts[i].Password,
+            accounts[i].role,
+            accounts[i].failed_attempts,
+            datetime);
+    }
+
+    fclose(file);
+    return 0;
 }
 
 

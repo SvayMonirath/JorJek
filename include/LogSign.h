@@ -2,6 +2,7 @@
 #define LOGSIGN_H
 
 #include <stdbool.h>
+#include <time.h>
 
 //----------------------------- DEFINES ------------------------------//
 #define MAX_PASS_LENGTH 20
@@ -14,6 +15,7 @@
 #define CHAT_CLIENT 2
 #define LOGOUT_ADMIN 4
 #define LOGOUT_USER 3
+#define MAX_FULL_TIMESTAMP_LEN 20
 
 //----------------------------- ENUM ------------------------------//
 typedef enum {
@@ -29,7 +31,9 @@ typedef enum {
 typedef struct {
     char Username[MAX_NAME_LENGTH];
     char Password[MAX_PASS_LENGTH];
-    ROLE role;
+    int role;
+    int failed_attempts;       // Track login failures
+    time_t lockout_until;      // Time when account unlocks
 } ACCOUNT;
 
 //----------------------------- FUNCTION PROTOTYPES ------------------------------//
@@ -39,5 +43,6 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
 void FirstDisplay(int *choice);
 void MainMenu(const char *loggedInUsername, ROLE role, int *choice);
 void handle_chat_menu(const char *username, int chat_choice, ROLE role);
+int save_accounts_to_file(const char *filename, ACCOUNT accounts[], int count);
 
 #endif
