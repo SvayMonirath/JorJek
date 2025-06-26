@@ -19,7 +19,6 @@ void AdminPanel(int *choice)  {
     printf("Enter an option: ");
     scanf("%d", choice);
     clear_input_buffer();
-    click_sound();
 }
 
 //----------------------------- VIEW USER ------------------------------//
