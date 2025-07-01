@@ -39,8 +39,6 @@ Jorjek enables two users to communicate in real-time over a TCP connection. It s
 
 ## Installation
 
-1. Clone the repository:
-
    ```
    git clone https://github.com/yourusername/jorjek.git
    cd jorjek
