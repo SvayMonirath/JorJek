@@ -85,11 +85,14 @@ bool VerifyLogin(const ACCOUNT accounts[], int accounts_count, const char *usern
     int index = find_account_index(accounts, accounts_count, username);
     if (index == -1) return false; // username not found
 
-    if (strcmp(password, accounts[index].Password) == 0) {
+    char hashed_input[MAX_PASS_LENGTH * 2 + 1];
+    simple_hash(password, hashed_input);
+
+    if (strcmp(hashed_input, accounts[index].Password) == 0) {
         if (out_role) *out_role = accounts[index].role;
-        return true;  // login successful
+        return true;
     }
-    return false; // password wrong
+    return false;
 }
 
 //----------------------------- SIGNUP ------------------------------//
@@ -109,9 +112,13 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
     }
 
     int index = *accounts_count;
+    char hashed_pass[MAX_PASS_LENGTH * 2 + 1];
+    simple_hash(password, hashed_pass);
+
     strcpy(accounts[index].Username, username);
-    strcpy(accounts[index].Password, password);
+    strcpy(accounts[index].Password, hashed_pass);
     accounts[index].role = ROLE_USER;
+
 
     FILE *file = fopen(FILE_NAME, "a");
     if (!file) {

@@ -136,15 +136,6 @@ bool get_confirmation(const char* prompt) {
     return confirmed;
 }
 
-//----------------------------- ENCRYPTION ------------------------------//
-
-void xor_encrypt_decrypt(char *data, size_t data_size, const char *key) {
-    size_t key_len = strlen(key);
-    for (size_t i = 0; i < data_size; i++) {
-        data[i] ^= key[i % key_len];
-    }
-}
-
 
 void wait_for_exit_prompt(const char *message) {
     char input[32];
@@ -162,4 +153,13 @@ void wait_for_exit_prompt(const char *message) {
     }
 }
 
+void simple_hash(const char *input, char *output) {
+    unsigned char key = 0x5A;  // fixed XOR key
 
+    size_t len = strlen(input);
+    for (size_t i = 0; i < len; i++) {
+        unsigned char xored = input[i] ^ key;
+        sprintf(output + i * 2, "%02X", xored);
+    }
+    output[len * 2] = '\0'; // null terminate
+}

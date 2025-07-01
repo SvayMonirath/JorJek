@@ -26,10 +26,9 @@ char* get_password_input(const char* prompt);
 bool get_confirmation(const char* prompt);
 void wait_for_exit_prompt(const char *message);
 
-//----------------------------- ENCRYPTION ------------------------------//
-void xor_encrypt_decrypt(char *data, size_t data_size, const char *key);
-
 void playChatSound();
+
+void simple_hash(const char *input, char *output);
 
 
 #endif // UTILS_H
