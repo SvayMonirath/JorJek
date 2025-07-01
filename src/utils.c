@@ -153,6 +153,8 @@ void wait_for_exit_prompt(const char *message) {
     }
 }
 
+//----------------------------- ENCRYPTION  ------------------------------//
+
 void simple_hash(const char *input, char *output, size_t out_size) {
     unsigned char key = 0x5A;
     size_t len = strlen(input);
@@ -169,7 +171,6 @@ void simple_hash(const char *input, char *output, size_t out_size) {
     output[len * 2] = '\0';
 }
 
-// Helper function — internal, no need to expose in header
 static int hex_char_to_int(char c) {
     if ('0' <= c && c <= '9') return c - '0';
     else if ('A' <= c && c <= 'F') return c - 'A' + 10;
@@ -177,7 +178,6 @@ static int hex_char_to_int(char c) {
     return -1;  // Invalid hex char
 }
 
-// The public function declared in utils.h
 void simple_unhash(const char *hashed_input, char *output, size_t out_size) {
     size_t len = strlen(hashed_input);
     if (len % 2 != 0 || out_size < len / 2 + 1) {
