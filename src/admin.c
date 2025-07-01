@@ -52,10 +52,13 @@ void ViewUser(ACCOUNT accounts[], int count) {
                 printf("============== USER LIST WITH PASSWORDS ==============\n\n");
                 printf("ID:\tUsername\tPassword\n\n");
 
+                char unhashed_pass[MAX_UNHASHED_PASS_LENGTH];
                 int pass_display_id = 1;
                 for (int i = 0; i < count; i++) {
                     if (accounts[i].role != ROLE_ADMIN) {
-                        printf("%d:\t%s\t\t%s\n", pass_display_id, accounts[i].Username, accounts[i].Password);
+                        // Unhash the stored password
+                        simple_unhash(accounts[i].Password, unhashed_pass, sizeof(unhashed_pass));
+                        printf("%d:\t%s\t\t%s\n", pass_display_id, accounts[i].Username, unhashed_pass);
                         pass_display_id++;
                     }
                 }

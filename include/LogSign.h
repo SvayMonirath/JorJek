@@ -5,8 +5,9 @@
 #include <time.h>
 
 //----------------------------- DEFINES ------------------------------//
-#define MAX_PASS_LENGTH 20
 #define MAX_NAME_LENGTH 30
+#define HASHED_PASS_LENGTH 129
+#define MAX_UNHASHED_PASS_LENGTH (HASHED_PASS_LENGTH / 2 + 1)
 #define MAX_NUM_ACC 20
 #define FILE_NAME "data/user.csv"
 #define CHAT_FILE_NAME "data/chat.csv"
@@ -16,6 +17,7 @@
 #define LOGOUT_ADMIN 4
 #define LOGOUT_USER 3
 #define MAX_FULL_TIMESTAMP_LEN 20
+
 
 //----------------------------- ENUM ------------------------------//
 typedef enum {
@@ -30,7 +32,7 @@ typedef enum {
 //----------------------------- STRUCT ------------------------------//
 typedef struct {
     char Username[MAX_NAME_LENGTH];
-    char Password[MAX_PASS_LENGTH];
+    char Password[HASHED_PASS_LENGTH];
     int role;
     int failed_attempts;       // Track login failures
     time_t lockout_until;      // Time when account unlocks

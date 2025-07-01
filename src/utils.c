@@ -121,7 +121,7 @@ char* get_username_input(const char* prompt) {
 }
 
 char* get_password_input(const char* prompt) {
-    char* password = get_input(prompt, MAX_PASS_LENGTH);
+    char* password = get_input(prompt, HASHED_PASS_LENGTH);
     if (_stricmp(password, "exit") == 0) {
         free(password);
         return NULL;
@@ -153,13 +153,51 @@ void wait_for_exit_prompt(const char *message) {
     }
 }
 
-void simple_hash(const char *input, char *output) {
-    unsigned char key = 0x5A;  // fixed XOR key
-
+void simple_hash(const char *input, char *output, size_t out_size) {
+    unsigned char key = 0x5A;
     size_t len = strlen(input);
+
+    if (out_size < len * 2 + 1) {
+        fprintf(stderr, "Output buffer too small!\n");
+        exit(1);
+    }
+
     for (size_t i = 0; i < len; i++) {
         unsigned char xored = input[i] ^ key;
         sprintf(output + i * 2, "%02X", xored);
     }
-    output[len * 2] = '\0'; // null terminate
+    output[len * 2] = '\0';
+}
+
+// Helper function — internal, no need to expose in header
+static int hex_char_to_int(char c) {
+    if ('0' <= c && c <= '9') return c - '0';
+    else if ('A' <= c && c <= 'F') return c - 'A' + 10;
+    else if ('a' <= c && c <= 'f') return c - 'a' + 10;
+    return -1;  // Invalid hex char
+}
+
+// The public function declared in utils.h
+void simple_unhash(const char *hashed_input, char *output, size_t out_size) {
+    size_t len = strlen(hashed_input);
+    if (len % 2 != 0 || out_size < len / 2 + 1) {
+        fprintf(stderr, "Invalid input length or output buffer too small\n");
+        if (out_size > 0) output[0] = '\0';
+        return;
+    }
+
+    unsigned char key = 0x5A;
+
+    for (size_t i = 0; i < len / 2; i++) {
+        int high = hex_char_to_int(hashed_input[i * 2]);
+        int low = hex_char_to_int(hashed_input[i * 2 + 1]);
+        if (high == -1 || low == -1) {
+            fprintf(stderr, "Invalid hex character in hashed input\n");
+            if (out_size > 0) output[0] = '\0';
+            return;
+        }
+        unsigned char xored = (high << 4) | low;
+        output[i] = xored ^ key;
+    }
+    output[len / 2] = '\0';
 }

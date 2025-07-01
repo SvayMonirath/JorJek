@@ -28,7 +28,8 @@ void wait_for_exit_prompt(const char *message);
 
 void playChatSound();
 
-void simple_hash(const char *input, char *output);
+void simple_hash(const char *input, char *output, size_t out_size);
+void simple_unhash(const char *hashed_input, char *output, size_t out_size);
 
 
 #endif // UTILS_H

@@ -83,10 +83,10 @@ int save_accounts_to_file(const char *filename, ACCOUNT accounts[], int count) {
 // check username and password to see if can login or nah
 bool VerifyLogin(const ACCOUNT accounts[], int accounts_count, const char *username, const char *password, ROLE *out_role) {
     int index = find_account_index(accounts, accounts_count, username);
-    if (index == -1) return false; // username not found
+    if (index == -1) return false;
 
-    char hashed_input[MAX_PASS_LENGTH * 2 + 1];
-    simple_hash(password, hashed_input);
+    char hashed_input[HASHED_PASS_LENGTH];
+    simple_hash(password, hashed_input, sizeof(hashed_input));
 
     if (strcmp(hashed_input, accounts[index].Password) == 0) {
         if (out_role) *out_role = accounts[index].role;
@@ -97,7 +97,6 @@ bool VerifyLogin(const ACCOUNT accounts[], int accounts_count, const char *usern
 
 //----------------------------- SIGNUP ------------------------------//
 
-// this one for creating new account 
 bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const char *password) {
     if (*accounts_count >= MAX_NUM_ACC) {
         printf("Already too many accounts\n");
@@ -112,29 +111,23 @@ bool SignUp(ACCOUNT accounts[], int *accounts_count, const char *username, const
     }
 
     int index = *accounts_count;
-    char hashed_pass[MAX_PASS_LENGTH * 2 + 1];
-    simple_hash(password, hashed_pass);
+    char hashed_pass[HASHED_PASS_LENGTH];
+    simple_hash(password, hashed_pass, sizeof(hashed_pass));
 
     strcpy(accounts[index].Username, username);
     strcpy(accounts[index].Password, hashed_pass);
     accounts[index].role = ROLE_USER;
-
-
-    FILE *file = fopen(FILE_NAME, "a");
-    if (!file) {
-        perror("Failed to open file in append\n");
-        PauseScreen(1000);
-        return false;
-    }
-
-    fprintf(file, "%d:%s,%s,%d\n", index, username, password, (int)ROLE_USER);
-    fclose(file);
+    accounts[index].failed_attempts = 0;
+    accounts[index].lockout_until = 0;
 
     (*accounts_count)++;
+    save_accounts_to_file(FILE_NAME, accounts, *accounts_count);
+
     printf("Account created successfully!\n");
     PauseScreen(1000);
     return true;
 }
+
 
 
 //----------------------------- FIRST MENU ------------------------------//
