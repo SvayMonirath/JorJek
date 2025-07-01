@@ -259,37 +259,3 @@ void AdminMenuLoop(ACCOUNT accounts[], int *accounts_count) {
         }
     } while (AdminChoice != 5);
 }
-
-//----------------------------- ENSURE DEFAULT ADMIN ------------------------------//
-void EnsureDefaultAdminExists(ACCOUNT accounts[], int *count) {
-    bool admin_exists = false;
-    for (int i = 0; i < *count; i++) {
-        if (accounts[i].role == ROLE_ADMIN) {
-            admin_exists = true;
-            break;
-        }
-    }
-
-    if (!admin_exists) {
-        printf("No admin found! Creating default admin account.\n");
-
-        ACCOUNT admin_account;
-        strcpy(admin_account.Username, "Monirath");
-        strcpy(admin_account.Password, "AdminRath1");
-        admin_account.role = ROLE_ADMIN;
-
-        if (*count < MAX_NUM_ACC) {
-            accounts[(*count)++] = admin_account;
-            if (save_accounts_to_file(FILE_NAME, accounts, *count) == 0) {
-                printf("Default admin account created\n");
-            } else {
-                printf("Failed to save default admin account!\n");
-            }
-        } else {
-            printf("Max account limit reached! Cannot create default admin.\n");
-        }
-
-        printf("Press Enter to continue...");
-        getchar();
-    }
-}

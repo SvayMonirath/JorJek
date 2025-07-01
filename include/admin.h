@@ -13,6 +13,5 @@ void ViewUser(ACCOUNT account[], int count);
 bool DeleteUser(ACCOUNT account[], int *count);
 bool ResetPass(ACCOUNT account[], int count);
 bool promote(ACCOUNT account[], int count);
-void EnsureDefaultAdminExists(ACCOUNT accounts[], int *count);
 
 #endif
